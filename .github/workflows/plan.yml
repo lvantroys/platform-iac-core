@@ -1,0 +1,120 @@
+name: Terraform Plan (platform-iac-core)
+
+on:
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      stack_path:
+        description: "Optional: stack folder like live/global/01-iam-oidc-cicd. Leave blank to plan ALL stacks."
+        required: false
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  detect-stacks:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: set-matrix
+        shell: bash
+        env:
+          INPUT_STACK: ${{ inputs.stack_path }}
+          AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          repo="${GITHUB_REPOSITORY#*/}"
+
+          # If user specified a stack, plan exactly that one.
+          if [[ -n "${INPUT_STACK:-}" ]]; then
+            stack="${INPUT_STACK}"
+            env_name="$(echo "$stack" | awk -F/ '{print $2}')"   # live/<env>/...
+            stack_rel="${stack#live/}"
+            state_key="${repo}/${stack_rel}/terraform.tfstate"
+            role_arn="arn:aws:iam::${AWS_ACCOUNT_ID}:role/gha-${repo}-${env_name}-plan"
+
+            printf -v json '[{"stack_path":"%s","environment":"%s","state_key":"%s","role_arn":"%s"}]' \
+              "$stack" "$env_name" "$state_key" "$role_arn"
+
+            echo "matrix=$json" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # PR: plan only stacks affected by the diff
+          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+            base="${{ github.event.pull_request.base.sha }}"
+            head="${{ github.sha }}"
+            mapfile -t files < <(git diff --name-only "$base" "$head" || true)
+
+            declare -A stacks=()
+            for f in "${files[@]}"; do
+              [[ "$f" == live/* ]] || continue
+              d="$(dirname "$f")"
+              while [[ "$d" != "." && "$d" != "live" ]]; do
+                if [[ -f "$d/backend.hcl.example" ]]; then
+                  stacks["$d"]=1
+                  break
+                fi
+                d="$(dirname "$d")"
+              done
+            done
+
+          # Manual run without stack_path: plan all stacks
+          else
+            declare -A stacks=()
+            while IFS= read -r p; do
+              stacks["$(dirname "$p")"]=1
+            done < <(find live -name backend.hcl.example -print)
+          fi
+
+          if [[ ${#stacks[@]} -eq 0 ]]; then
+            echo 'matrix=[{"stack_path":"__none__","environment":"global","state_key":"__none__","role_arn":"__none__"}]' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          json='['
+          first=1
+          for stack in $(printf "%s\n" "${!stacks[@]}" | sort); do
+            env_name="$(echo "$stack" | awk -F/ '{print $2}')"
+            stack_rel="${stack#live/}"
+            state_key="${repo}/${stack_rel}/terraform.tfstate"
+            role_arn="arn:aws:iam::${AWS_ACCOUNT_ID}:role/gha-${repo}-${env_name}-plan"
+
+            [[ $first -eq 0 ]] && json+=','
+            first=0
+            json+="{\"stack_path\":\"$stack\",\"environment\":\"$env_name\",\"state_key\":\"$state_key\",\"role_arn\":\"$role_arn\"}"
+          done
+          json+=']'
+
+          echo "matrix=$json" >> "$GITHUB_OUTPUT"
+
+  plan:
+    name: Plan (matrix)
+    needs: [detect-stacks]
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.detect-stacks.outputs.matrix) }}
+
+    # NOTE: 'uses' must be literal (no vars/expressions). :contentReference[oaicite:3]{index=3}
+    uses: YOUR_GITHUB_ORG/platform-reusable-wf-infra/.github/workflows/terraform-plan.yml@v1
+    permissions:
+      id-token: write
+      contents: read
+    with:
+      stack_path: ${{ matrix.stack_path }}
+      environment: ${{ matrix.environment }}
+      aws_region: ${{ vars.AWS_REGION }}
+      terraform_version: ${{ vars.TERRAFORM_VERSION }}
+      role_arn: ${{ matrix.role_arn }}
+      tfstate_bucket: ${{ vars.TFSTATE_BUCKET }}
+      tfstate_kms_key_arn: ${{ vars.TFSTATE_KMS_KEY_ARN }}
+      state_key: ${{ matrix.state_key }}

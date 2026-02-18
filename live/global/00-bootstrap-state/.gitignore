@@ -1,0 +1,18 @@
+
+---
+
+## `.gitignore`
+
+```gitignore
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+
+# local backend config / local var overrides
+backend.hcl
+global.auto.tfvars
+
+# editor / OS
+.DS_Store
+Thumbs.db

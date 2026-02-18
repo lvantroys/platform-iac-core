@@ -1,0 +1,56 @@
+aws_region = "us-east-1"
+
+owner               = "platform-team"
+environment         = "global"
+app                 = "platform-core"
+data_classification = "restricted"
+
+# From 00-bootstrap-state outputs:
+tfstate_bucket_name    = "your-demo1-tfstate-us-east-1"
+tfstate_bucket_arn     = "arn:aws:s3:::my-demo1-tfstate-us-east-1"
+tfstate_kms_key_arn    = "arn:aws:kms:us-east-1:123456789012:key/REPLACE_ME"
+
+github_org = "YOUR_GITHUB_ORG"
+
+# Strongly restrict which workflow files can assume roles
+allowed_workflow_refs_plan = [
+  "YOUR_GITHUB_ORG/platform-iac-core/.github/workflows/plan.yml@refs/heads/main",
+  "YOUR_GITHUB_ORG/platform-iac-env/.github/workflows/plan.yml@refs/heads/main",
+  "YOUR_GITHUB_ORG/app-foo-iac/.github/workflows/plan.yml@refs/heads/main"
+]
+
+allowed_workflow_refs_apply = [
+  "YOUR_GITHUB_ORG/platform-iac-core/.github/workflows/apply.yml@refs/heads/main",
+  "YOUR_GITHUB_ORG/platform-iac-env/.github/workflows/apply.yml@refs/heads/main",
+  "YOUR_GITHUB_ORG/app-foo-iac/.github/workflows/apply.yml@refs/heads/main"
+]
+
+# Roles are created per repo × environment
+repositories = [
+  {
+    repo          = "platform-iac-core"
+    type          = "platform_core"
+    environments  = ["global"]
+    state_prefixes = ["platform-iac-core/"]
+  },
+  {
+    repo          = "platform-iac-env"
+    type          = "platform_env"
+    environments  = ["dev","stage","prod"]
+    state_prefixes = ["platform-iac-env/"]
+  },
+  {
+    repo          = "app-foo-iac"
+    type          = "app"
+    environments  = ["dev","stage","prod"]
+    state_prefixes = ["app-foo-iac/"]
+  }
+]
+
+# Optional: also allow apply from main branch ref (in addition to GitHub environment gating)
+apply_allow_main_branch = true
+
+extra_tags = {
+  "cost-center" = "finops-001"
+  "compliance"  = "regulated-finance"
+}
