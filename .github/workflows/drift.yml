@@ -52,7 +52,7 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.enumerate.outputs.matrix) }}
 
-    uses: YOUR_GITHUB_ORG/platform-reusable-wf-infra/.github/workflows/terraform-plan.yml@v1
+    uses: lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-plan.yml@v1
     permissions:
       id-token: write
       contents: read

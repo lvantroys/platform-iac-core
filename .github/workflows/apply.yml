@@ -1,0 +1,59 @@
+name: Terraform Apply (platform-iac-core)
+
+on:
+  workflow_dispatch:
+    inputs:
+      stack_path:
+        description: "Stack folder like live/global/01-iam-oidc-cicd"
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.out.outputs.environment }}
+      state_key: ${{ steps.out.outputs.state_key }}
+      role_arn: ${{ steps.out.outputs.role_arn }}
+    steps:
+      - id: out
+        shell: bash
+        env:
+          STACK: ${{ inputs.stack_path }}
+          AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          repo="${GITHUB_REPOSITORY#*/}"
+          env_name="$(echo "$STACK" | awk -F/ '{print $2}')"
+          stack_rel="${STACK#live/}"
+          state_key="${repo}/${stack_rel}/terraform.tfstate"
+          role_arn="arn:aws:iam::${AWS_ACCOUNT_ID}:role/gha-${repo}-${env_name}-apply"
+
+          echo "environment=$env_name" >> "$GITHUB_OUTPUT"
+          echo "state_key=$state_key" >> "$GITHUB_OUTPUT"
+          echo "role_arn=$role_arn" >> "$GITHUB_OUTPUT"
+
+  apply:
+    needs: [prep]
+    concurrency:
+      group: tf-apply-${{ needs.prep.outputs.environment }}-${{ inputs.stack_path }}
+      cancel-in-progress: false
+
+    uses: lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-apply.yml@v1
+    permissions:
+      id-token: write
+      contents: read
+    with:
+      stack_path: ${{ inputs.stack_path }}
+      environment: ${{ needs.prep.outputs.environment }}
+      aws_region: ${{ vars.AWS_REGION }}
+      terraform_version: ${{ vars.TERRAFORM_VERSION }}
+      role_arn: ${{ needs.prep.outputs.role_arn }}
+      tfstate_bucket: ${{ vars.TFSTATE_BUCKET }}
+      tfstate_kms_key_arn: ${{ vars.TFSTATE_KMS_KEY_ARN }}
+      state_key: ${{ needs.prep.outputs.state_key }}
+      require_main_branch: true
