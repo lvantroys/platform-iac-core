@@ -84,6 +84,21 @@ data "aws_iam_policy_document" "trust_apply" {
 # -----------------------------
 
 data "aws_iam_policy_document" "permissions_boundary" {
+#  for_each = local.unique_repo_defs
+  statement {
+    sid    = "AllowTfstateListBucket"
+    effect = "Allow"
+    actions = ["s3:ListBucket"]
+    resources = [var.tfstate_bucket_arn]
+  }
+
+  statement {
+    sid    = "AllowTfstateListBucketObjects"
+    effect = "Allow"
+    actions = ["s3:ListBucket","s3:GetObject","s3:GetObjectVersion","s3:PutObject"]
+    resources = ["${var.tfstate_bucket_arn}/*"]
+  }
+
   statement {
     sid    = "DenyStateBucketAdminChanges"
     effect = "Deny"
@@ -99,6 +114,19 @@ data "aws_iam_policy_document" "permissions_boundary" {
       "s3:PutBucketObjectLockConfiguration"
     ]
     resources = [var.tfstate_bucket_arn]
+  }
+
+  statement {
+    sid    = "AllowTfstateKmsUsage"
+    effect = "Allow"
+    actions = [
+      "kms:Decrypt",
+      "kms:Encrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey",
+      "kms:DescribeKey"
+    ]
+    resources = [var.tfstate_kms_key_arn]
   }
 
   statement {
