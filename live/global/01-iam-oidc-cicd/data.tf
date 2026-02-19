@@ -84,18 +84,18 @@ data "aws_iam_policy_document" "trust_apply" {
 # -----------------------------
 
 data "aws_iam_policy_document" "permissions_boundary" {
-#  for_each = local.unique_repo_defs
+  #  for_each = local.unique_repo_defs
   statement {
-    sid    = "AllowTfstateListBucket"
-    effect = "Allow"
-    actions = ["s3:ListBucket"]
+    sid       = "AllowTfstateListBucket"
+    effect    = "Allow"
+    actions   = ["s3:ListBucket"]
     resources = [var.tfstate_bucket_arn]
   }
 
   statement {
-    sid    = "AllowTfstateListBucketObjects"
-    effect = "Allow"
-    actions = ["s3:ListBucket","s3:GetObject","s3:GetObjectVersion","s3:PutObject"]
+    sid       = "AllowTfstateListBucketObjects"
+    effect    = "Allow"
+    actions   = ["s3:ListBucket", "s3:GetObject", "s3:GetObjectVersion", "s3:PutObject"]
     resources = ["${var.tfstate_bucket_arn}/*"]
   }
 
