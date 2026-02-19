@@ -29,6 +29,9 @@ jobs:
         env:
           INPUT_STACK: ${{ inputs.stack_path }}
           AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+          TF_VAR_aws_region: ${{ env.AWS_REGION }}
+          TF_VAR_tfstate_bucket: ${{ vars.TFSTATE_BUCKET }}
+          TF_VAR_owner: ${{ env.OWNER }}
         run: |
           set -euo pipefail
           repo="${GITHUB_REPOSITORY#*/}"
