@@ -29,9 +29,6 @@ jobs:
         env:
           INPUT_STACK: ${{ inputs.stack_path }}
           AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
-          TF_VAR_aws_region: ${{ vars.AWS_REGION }}
-          TF_VAR_tfstate_bucket: ${{ vars.TFSTATE_BUCKET }}
-          TF_VAR_owner: ${{ vars.OWNER }}
         run: |
           set -euo pipefail
           repo="${GITHUB_REPOSITORY#*/}"
@@ -108,7 +105,7 @@ jobs:
         include: ${{ fromJson(needs.detect-stacks.outputs.matrix) }}
 
     # NOTE: 'uses' must be literal (no vars/expressions). :contentReference[oaicite:3]{index=3}
-    uses: lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-plan.yml@v1
+    uses: lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-plan.yml@v2
     permissions:
       id-token: write
       contents: read
@@ -118,6 +115,7 @@ jobs:
       aws_region: ${{ vars.AWS_REGION }}
       terraform_version: ${{ vars.TERRAFORM_VERSION }}
       role_arn: ${{ matrix.role_arn }}
-      tfstate_bucket: ${{ vars.TFSTATE_BUCKET }}
-      tfstate_kms_key_arn: ${{ vars.TFSTATE_KMS_KEY_ARN }}
+      state_bucket_name: ${{ vars.TFSTATE_BUCKET }}
+      state_kms_key_arn: ${{ vars.TFSTATE_KMS_KEY_ARN }}
       state_key: ${{ matrix.state_key }}
+      var_files: live/${{ matrix.environment }}/terraform.tfvars
