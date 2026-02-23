@@ -91,7 +91,14 @@ data "aws_iam_policy_document" "permissions_boundary" {
     actions = ["s3:ListBucket",
       "s3:GetBucketPolicy",
       "s3:GetBucketAcl",
-      "s3:GetBucketCORS"
+      "s3:GetBucketCORS",
+      "s3:GetBucketWebsite",
+      "s3:GetBucketVersioning",
+      "s3:GetAccelerateConfiguration",
+      "s3:GetBucketRequestPayment",
+      "s3:GetBucketLogging",
+      "s3:GetLifecycleConfiguration",
+      "s3:Get*"
     ]
     resources = [var.tfstate_bucket_arn]
   }
@@ -136,6 +143,12 @@ data "aws_iam_policy_document" "permissions_boundary" {
     resources = [var.state_kms_key_arn]
   }
 
+  statement {
+    sid     = "AllowKmsListAliases"
+    effect  = "Allow"
+    actions = ["kms:ListAliases"]
+    resources = ["*"]
+  }
   statement {
     sid    = "DenyStateKmsDestructiveOps"
     effect = "Deny"
