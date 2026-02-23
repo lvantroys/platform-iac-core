@@ -43,7 +43,7 @@ jobs:
       group: tf-apply-${{ needs.prep.outputs.environment }}-${{ inputs.stack_path }}
       cancel-in-progress: false
 
-    uses: lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-apply.yml@v2
+    uses: lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-apply.yml@v3
     permissions:
       id-token: write
       contents: read
