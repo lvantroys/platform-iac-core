@@ -31,7 +31,7 @@ data "aws_iam_policy_document" "trust_plan" {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:job_workflow_ref"
       values = [
-        "lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-plan.yml@refs/tags/v1"
+        "lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-plan.yml@refs/tags/v2"
       ]
     }
 
@@ -66,7 +66,7 @@ data "aws_iam_policy_document" "trust_apply" {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:job_workflow_ref"
       values = [
-        "lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-apply.yml@refs/tags/v1"
+        "lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-apply.yml@refs/tags/v2"
       ]
     }
 
@@ -86,16 +86,19 @@ data "aws_iam_policy_document" "trust_apply" {
 data "aws_iam_policy_document" "permissions_boundary" {
   #  for_each = local.unique_repo_defs
   statement {
-    sid       = "AllowTfstateListBucket"
-    effect    = "Allow"
-    actions   = ["s3:ListBucket"]
+    sid    = "AllowTfstateListBucket"
+    effect = "Allow"
+    actions = ["s3:ListBucket",
+      "s3:GetBucketPolicy",
+      "s3:GetBucketAcl"
+    ]
     resources = [var.tfstate_bucket_arn]
   }
 
   statement {
     sid       = "AllowTfstateListBucketObjects"
     effect    = "Allow"
-    actions   = ["s3:ListBucket", "s3:GetObject", "s3:GetObjectVersion", "s3:PutObject"]
+    actions   = ["s3:ListBucket", "s3:GetObject", "s3:GetObjectVersion", "s3:PutObject", "s3:DeleteObject"]
     resources = ["${var.tfstate_bucket_arn}/*"]
   }
 
@@ -111,7 +114,8 @@ data "aws_iam_policy_document" "permissions_boundary" {
       "s3:PutBucketVersioning",
       "s3:PutEncryptionConfiguration",
       "s3:PutLifecycleConfiguration",
-      "s3:PutBucketObjectLockConfiguration"
+      "s3:PutBucketObjectLockConfiguration",
+      "s3:GetBucketCORS"
     ]
     resources = [var.tfstate_bucket_arn]
   }
@@ -124,9 +128,11 @@ data "aws_iam_policy_document" "permissions_boundary" {
       "kms:Encrypt",
       "kms:ReEncrypt*",
       "kms:GenerateDataKey",
-      "kms:DescribeKey"
+      "kms:DescribeKey",
+      "kms:GetKeyPolicy",
+      "kms:GetKeyRotationStatus"
     ]
-    resources = [var.tfstate_kms_key_arn]
+    resources = [var.state_kms_key_arn]
   }
 
   statement {
@@ -140,7 +146,7 @@ data "aws_iam_policy_document" "permissions_boundary" {
       "kms:DeleteAlias",
       "kms:UpdateAlias"
     ]
-    resources = [var.tfstate_kms_key_arn]
+    resources = [var.state_kms_key_arn]
   }
 
   statement {
@@ -218,7 +224,7 @@ data "aws_iam_policy_document" "tfstate_access_by_repo" {
       "kms:GenerateDataKey*",
       "kms:DescribeKey"
     ]
-    resources = [var.tfstate_kms_key_arn]
+    resources = [var.state_kms_key_arn]
 
     condition {
       test     = "StringEquals"
