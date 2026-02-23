@@ -31,7 +31,7 @@ data "aws_iam_policy_document" "trust_plan" {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:job_workflow_ref"
       values = [
-        "lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-plan.yml@refs/tags/v2"
+        "lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-plan.yml@refs/tags/v4"
       ]
     }
 
@@ -66,7 +66,7 @@ data "aws_iam_policy_document" "trust_apply" {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:job_workflow_ref"
       values = [
-        "lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-apply.yml@refs/tags/v2"
+        "lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-apply.yml@refs/tags/v4"
       ]
     }
 
@@ -90,7 +90,8 @@ data "aws_iam_policy_document" "permissions_boundary" {
     effect = "Allow"
     actions = ["s3:ListBucket",
       "s3:GetBucketPolicy",
-      "s3:GetBucketAcl"
+      "s3:GetBucketAcl",
+      "s3:GetBucketCORS"
     ]
     resources = [var.tfstate_bucket_arn]
   }
@@ -114,8 +115,7 @@ data "aws_iam_policy_document" "permissions_boundary" {
       "s3:PutBucketVersioning",
       "s3:PutEncryptionConfiguration",
       "s3:PutLifecycleConfiguration",
-      "s3:PutBucketObjectLockConfiguration",
-      "s3:GetBucketCORS"
+      "s3:PutBucketObjectLockConfiguration"
     ]
     resources = [var.tfstate_bucket_arn]
   }
@@ -130,7 +130,8 @@ data "aws_iam_policy_document" "permissions_boundary" {
       "kms:GenerateDataKey",
       "kms:DescribeKey",
       "kms:GetKeyPolicy",
-      "kms:GetKeyRotationStatus"
+      "kms:GetKeyRotationStatus",
+      "kms:ListResourceTags"
     ]
     resources = [var.state_kms_key_arn]
   }
