@@ -118,4 +118,4 @@ jobs:
       state_bucket_name: ${{ vars.TFSTATE_BUCKET }}
       state_kms_key_arn: ${{ vars.TFSTATE_KMS_KEY_ARN }}
       state_key: ${{ matrix.state_key }}
-      var_files: ${{ matrix.stack_path }}/terraform.tfvars
+      var_files: /terraform.tfvars
