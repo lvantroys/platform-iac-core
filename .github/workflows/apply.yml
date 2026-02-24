@@ -57,3 +57,4 @@ jobs:
       tfstate_kms_key_arn: ${{ vars.TFSTATE_KMS_KEY_ARN }}
       state_key: ${{ needs.prep.outputs.state_key }}
       require_main_branch: true
+      var_files: /terraform.tfvars

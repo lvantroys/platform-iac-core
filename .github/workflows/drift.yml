@@ -65,4 +65,6 @@ jobs:
       tfstate_bucket: ${{ vars.TFSTATE_BUCKET }}
       tfstate_kms_key_arn: ${{ vars.TFSTATE_KMS_KEY_ARN }}
       state_key: ${{ matrix.state_key }}
+      var_files: /terraform.tfvars
+
       # NOTE: this requires your reusable plan workflow to support drift flags (e.g. -detailed-exitcode / -refresh-only)
