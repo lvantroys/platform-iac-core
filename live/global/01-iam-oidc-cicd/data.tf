@@ -357,6 +357,7 @@ data "aws_iam_policy_document" "apply_platform_core" {
       "kms:CreateAlias", "kms:DeleteAlias", "kms:UpdateAlias",
       "kms:PutKeyPolicy", "kms:GetKeyPolicy", "kms:ListKeys", "kms:ListAliases",
       "kms:TagResource", "kms:UntagResource",
+      "kms:GetKeyRotationStatus",
 
       # S3 (audit/config buckets)
       "s3:CreateBucket", "s3:DeleteBucket",
@@ -368,6 +369,7 @@ data "aws_iam_policy_document" "apply_platform_core" {
       "s3:PutLifecycleConfiguration", "s3:GetLifecycleConfiguration",
       "s3:ListBucket", "s3:GetBucketLocation",
       "s3:PutObject", "s3:GetObject", "s3:DeleteObject",
+      "s3:GetBucketAcl",
 
       # CloudTrail / Config / Security services
       "cloudtrail:CreateTrail", "cloudtrail:UpdateTrail", "cloudtrail:DeleteTrail",
