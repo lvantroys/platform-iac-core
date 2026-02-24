@@ -102,14 +102,14 @@ data "aws_iam_policy_document" "permissions_boundary" {
       "s3:GetLifecycleConfiguration",
       "s3:Get*"
     ]
-    resources = [var.tfstate_bucket_arn]
+    resources = [var.state_bucket_arn]
   }
 
   statement {
     sid       = "AllowTfstateListBucketObjects"
     effect    = "Allow"
     actions   = ["s3:ListBucket", "s3:GetObject", "s3:GetObjectVersion", "s3:PutObject", "s3:DeleteObject"]
-    resources = ["${var.tfstate_bucket_arn}/*"]
+    resources = ["${var.state_bucket_arn}/*"]
   }
 
   statement {
@@ -126,7 +126,7 @@ data "aws_iam_policy_document" "permissions_boundary" {
       "s3:PutLifecycleConfiguration",
       "s3:PutBucketObjectLockConfiguration"
     ]
-    resources = [var.tfstate_bucket_arn]
+    resources = [var.state_bucket_arn]
   }
 
   statement {
@@ -199,7 +199,7 @@ data "aws_iam_policy_document" "tfstate_access_by_repo" {
       "s3:GetBucketLocation",
       "s3:GetBucketVersioning"
     ]
-    resources = [var.tfstate_bucket_arn]
+    resources = [var.state_bucket_arn]
 
     condition {
       test     = "StringLike"
@@ -223,7 +223,7 @@ data "aws_iam_policy_document" "tfstate_access_by_repo" {
 
     resources = flatten([
       for p in each.value.state_prefixes : [
-        "${var.tfstate_bucket_arn}/${p}*"
+        "${var.state_bucket_arn}/${p}*"
       ]
     ])
   }

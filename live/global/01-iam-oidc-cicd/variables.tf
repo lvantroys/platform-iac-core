@@ -45,12 +45,12 @@ variable "extra_tags" {
 
 # --- Remote state backend references (from 00-bootstrap-state outputs) ---
 
-variable "tfstate_bucket_arn" {
+variable "state_bucket_arn" {
   type        = string
   description = "ARN of the S3 state bucket (from 00-bootstrap-state output)."
 }
 
-variable "tfstate_kms_key_arn" {
+variable "state_kms_key_arn" {
   type        = string
   description = "ARN of the KMS key encrypting Terraform state objects (from 00-bootstrap-state output)."
 }
