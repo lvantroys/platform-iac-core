@@ -86,7 +86,6 @@ data "aws_iam_policy_document" "trust_apply" {
 # -----------------------------
 
 data "aws_iam_policy_document" "permissions_boundary" {
-  #  for_each = local.unique_repo_defs
   statement {
     sid    = "AllowTfstateListBucket"
     effect = "Allow"
@@ -176,6 +175,19 @@ data "aws_iam_policy_document" "permissions_boundary" {
       "iam:UpdateLoginProfile",
       "iam:CreateUser",
       "iam:DeleteUser"
+    ]
+    resources = ["*"]
+  }
+
+    statement {
+    sid    = "AllowCreateUpdateOnPolicies"
+    effect = "Allow"
+    actions = [
+      "iam:List*",
+      "iam:Get*",
+      "iam:GetOpenIDConnectProvider",
+      "iam:Create*",
+      "iam:Update*"
     ]
     resources = ["*"]
   }
