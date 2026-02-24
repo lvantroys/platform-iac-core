@@ -179,7 +179,7 @@ data "aws_iam_policy_document" "permissions_boundary" {
     resources = ["*"]
   }
 
-    statement {
+  statement {
     sid    = "AllowCreateUpdateOnPolicies"
     effect = "Allow"
     actions = [
