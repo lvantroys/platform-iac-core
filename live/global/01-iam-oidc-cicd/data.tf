@@ -31,9 +31,9 @@ data "aws_iam_policy_document" "trust_plan" {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:job_workflow_ref"
       values = [
-        "lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-plan.yml@refs/tags/v4",
         "lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-plan.yml@refs/tags/v5",
-        "lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-plan.yml@refs/tags/v6"
+        "lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-plan.yml@refs/tags/v6",
+        "lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-plan.yml@refs/tags/v7"
       ]
     }
 
@@ -68,9 +68,9 @@ data "aws_iam_policy_document" "trust_apply" {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:job_workflow_ref"
       values = [
-        "lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-apply.yml@refs/tags/v4",
         "lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-apply.yml@refs/tags/v5",
-        "lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-apply.yml@refs/tags/v6"
+        "lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-apply.yml@refs/tags/v6",
+        "lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-apply.yml@refs/tags/v7"
       ]
     }
 
