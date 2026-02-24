@@ -62,8 +62,8 @@ jobs:
       aws_region: ${{ vars.AWS_REGION }}
       terraform_version: ${{ vars.TERRAFORM_VERSION }}
       role_arn: ${{ matrix.role_arn }}
-      tfstate_bucket: ${{ vars.TFSTATE_BUCKET }}
-      tfstate_kms_key_arn: ${{ vars.TFSTATE_KMS_KEY_ARN }}
+      state_bucket: ${{ vars.TFSTATE_BUCKET }}
+      state_kms_key_arn: ${{ vars.TFSTATE_KMS_KEY_ARN }}
       state_key: ${{ matrix.state_key }}
       var_files: /terraform.tfvars
 
