@@ -40,7 +40,7 @@ jobs:
   apply:
     needs: [prep]
     concurrency:
-      group: tf-apply-${{ needs.prep.outputs.environment }}-${{ inputs.stack_path }}
+      group: tf-apply-wf-caller-${{ needs.prep.outputs.environment }}-${{ inputs.stack_path }}
       cancel-in-progress: false
 
     uses: lvantroys/platform-reusable-wf-infra/.github/workflows/terraform-apply.yml@v6
