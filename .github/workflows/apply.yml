@@ -53,7 +53,7 @@ jobs:
       aws_region: ${{ vars.AWS_REGION }}
       terraform_version: ${{ vars.TERRAFORM_VERSION }}
       role_arn: ${{ needs.prep.outputs.role_arn }}
-      state_bucket: ${{ vars.TFSTATE_BUCKET }}
+      state_bucket_name: ${{ vars.TFSTATE_BUCKET }}
       state_kms_key_arn: ${{ vars.TFSTATE_KMS_KEY_ARN }}
       state_key: ${{ needs.prep.outputs.state_key }}
       require_main_branch: true
