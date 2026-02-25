@@ -13,6 +13,16 @@ resource "aws_iam_policy" "permissions_boundary" {
   tags        = local.common_tags
 }
 
+
+resource "aws_iam_policy" "permissions_boundary_core_only" {
+  name        = "pb-terraform-cicd-guardrails-core-only"
+  description = "Deny-only permissions boundary for Terraform CI roles (protects state backend and blocks long-lived creds)."
+  policy      = data.aws_iam_policy_document.permissions_boundary_core_only.json
+  tags        = local.common_tags
+}
+
+
+
 # TF state access policies per repo (scoped to state prefixes)
 resource "aws_iam_policy" "tfstate_access_by_repo" {
   for_each    = local.unique_repo_defs
@@ -73,15 +83,17 @@ resource "aws_iam_role" "plan" {
   for_each             = local.repo_env_map
   name                 = local.role_name_plan[each.key]
   assume_role_policy   = data.aws_iam_policy_document.trust_plan[each.key].json
-  permissions_boundary = aws_iam_policy.permissions_boundary.arn
-  tags                 = merge(local.common_tags, { "ci-role" = "plan", "target-repo" = each.value.repo, "target-env" = each.value.env })
+#  permissions_boundary = aws_iam_policy.permissions_boundary.arn
+  permissions_boundary = each.value.repo == "platform-iac-core" ? aws_iam_policy.permissions_boundary_core_only.arn : aws_iam_policy.permissions_boundary.arn
+   tags                 = merge(local.common_tags, { "ci-role" = "plan", "target-repo" = each.value.repo, "target-env" = each.value.env })
 }
 
 resource "aws_iam_role" "apply" {
   for_each             = local.repo_env_map
   name                 = local.role_name_apply[each.key]
   assume_role_policy   = data.aws_iam_policy_document.trust_apply[each.key].json
-  permissions_boundary = aws_iam_policy.permissions_boundary.arn
+#  permissions_boundary = aws_iam_policy.permissions_boundary.arn
+  permissions_boundary = each.value.repo == "platform-iac-core" ? aws_iam_policy.permissions_boundary_core_only.arn : aws_iam_policy.permissions_boundary.arn
   tags                 = merge(local.common_tags, { "ci-role" = "apply", "target-repo" = each.value.repo, "target-env" = each.value.env })
 }
 

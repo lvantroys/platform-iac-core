@@ -195,6 +195,110 @@ data "aws_iam_policy_document" "permissions_boundary" {
   }
 }
 
+data "aws_iam_policy_document" "permissions_boundary_core_only" {
+  statement {
+    sid    = "AllowTfstateListBucket"
+    effect = "Allow"
+    actions = ["s3:ListBucket",
+      "s3:GetBucketPolicy",
+      "s3:GetBucketAcl",
+      "s3:GetBucketCORS",
+      "s3:GetBucketWebsite",
+      "s3:GetBucketVersioning",
+      "s3:GetAccelerateConfiguration",
+      "s3:GetBucketRequestPayment",
+      "s3:GetBucketLogging",
+      "s3:GetLifecycleConfiguration",
+      "s3:Get*",
+      "s3:Put*"
+    ]
+    resources = [var.state_bucket_arn]
+  }
+
+  statement {
+    sid       = "AllowTfstateListBucketObjects"
+    effect    = "Allow"
+    actions   = ["s3:ListBucket", "s3:GetObject", "s3:GetObjectVersion", "s3:PutObject", "s3:DeleteObject"]
+    resources = ["${var.state_bucket_arn}/*"]
+  }
+
+  statement {
+    sid    = "DenyStateBucketAdminChanges"
+    effect = "Deny"
+    actions = [
+      "s3:DeleteBucket",
+      "s3:DeleteBucketPolicy"
+      ]
+    resources = [var.state_bucket_arn]
+  }
+
+  statement {
+    sid    = "AllowTfstateKmsUsage"
+    effect = "Allow"
+    actions = [
+      "kms:Decrypt",
+      "kms:Encrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey",
+      "kms:DescribeKey",
+      "kms:GetKeyPolicy",
+      "kms:GetKeyRotationStatus",
+      "kms:ListResourceTags",
+      "kms:PutKeyPolicy"
+    ]
+    resources = [var.state_kms_key_arn]
+  }
+
+  statement {
+    sid       = "AllowKmsListAliases"
+    effect    = "Allow"
+    actions   = ["kms:ListAliases"]
+    resources = ["*"]
+  }
+  statement {
+    sid    = "DenyStateKmsDestructiveOps"
+    effect = "Deny"
+    actions = [
+      "kms:DisableKey",
+      "kms:ScheduleKeyDeletion",
+      "kms:CancelKeyDeletion",
+      "kms:DeleteAlias",
+      "kms:UpdateAlias"
+    ]
+    resources = [var.state_kms_key_arn]
+  }
+
+  statement {
+    sid    = "DenyCreateLongLivedCreds"
+    effect = "Deny"
+    actions = [
+      "iam:CreateAccessKey",
+      "iam:UpdateAccessKey",
+      "iam:DeleteAccessKey",
+      "iam:CreateLoginProfile",
+      "iam:UpdateLoginProfile",
+      "iam:CreateUser",
+      "iam:DeleteUser"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "AllowCreateUpdateOnPolicies"
+    effect = "Allow"
+    actions = [
+      "iam:List*",
+      "iam:Get*",
+      "iam:GetOpenIDConnectProvider",
+      "iam:Create*",
+      "iam:Update*"
+    ]
+    resources = ["*"]
+  }
+}
+
+
+
 # -----------------------------
 # State access policies per repo
 # scoped to that repo's state_prefixes
@@ -357,7 +461,7 @@ data "aws_iam_policy_document" "apply_platform_core" {
       "kms:CreateAlias", "kms:DeleteAlias", "kms:UpdateAlias",
       "kms:PutKeyPolicy", "kms:GetKeyPolicy", "kms:ListKeys", "kms:ListAliases",
       "kms:TagResource", "kms:UntagResource",
-      "kms:GetKeyRotationStatus",
+      "kms:GetKeyRotationStatus", "kms:ListResourceTags",
 
       # S3 (audit/config buckets)
       "s3:CreateBucket", "s3:DeleteBucket",
@@ -369,7 +473,11 @@ data "aws_iam_policy_document" "apply_platform_core" {
       "s3:PutLifecycleConfiguration", "s3:GetLifecycleConfiguration",
       "s3:ListBucket", "s3:GetBucketLocation",
       "s3:PutObject", "s3:GetObject", "s3:DeleteObject",
-      "s3:GetBucketAcl",
+
+      "s3:GetBucketAcl", "s3:GetBucketCORS", "s3:GetBucketWebsite",
+      "s3:GetAccelerateConfiguration", "s3:GetBucketRequestPayment",
+      "s3:GetBucketLogging","s3:GetReplicationConfiguration", "s3:GetBucketObjectLockConfiguration",
+      "s3:GetBucketTagging",
 
       # CloudTrail / Config / Security services
       "cloudtrail:CreateTrail", "cloudtrail:UpdateTrail", "cloudtrail:DeleteTrail",
