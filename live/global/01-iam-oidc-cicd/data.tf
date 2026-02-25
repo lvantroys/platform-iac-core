@@ -228,7 +228,7 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
     actions = [
       "s3:DeleteBucket",
       "s3:DeleteBucketPolicy"
-      ]
+    ]
     resources = [var.state_bucket_arn]
   }
 
@@ -476,7 +476,7 @@ data "aws_iam_policy_document" "apply_platform_core" {
 
       "s3:GetBucketAcl", "s3:GetBucketCORS", "s3:GetBucketWebsite",
       "s3:GetAccelerateConfiguration", "s3:GetBucketRequestPayment",
-      "s3:GetBucketLogging","s3:GetReplicationConfiguration", "s3:GetBucketObjectLockConfiguration",
+      "s3:GetBucketLogging", "s3:GetReplicationConfiguration", "s3:GetBucketObjectLockConfiguration",
       "s3:GetBucketTagging",
 
       # CloudTrail / Config / Security services
