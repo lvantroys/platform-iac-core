@@ -462,7 +462,7 @@ data "aws_iam_policy_document" "apply_platform_core" {
     effect = "Allow"
     actions = [
       # IAM (for CI roles, boundaries, and later platform stacks)
-      "iam:CreateRole", "iam:DeleteRole", "iam:UpdateRole", "iam:GetRole", "iam:ListRoles",
+      "iam:CreateRole", "iam:DeleteRole", "iam:UpdateRole", "iam:GetRole", "iam:ListRoles", "iam:ListRolePolicies",
       "iam:AttachRolePolicy", "iam:DetachRolePolicy",
       "iam:PutRolePolicy", "iam:DeleteRolePolicy",
       "iam:CreatePolicy", "iam:DeletePolicy", "iam:ListPolicies", "iam:GetPolicy", "iam:GetPolicyVersion",
