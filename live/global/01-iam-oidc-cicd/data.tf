@@ -243,6 +243,8 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
       "kms:DescribeKey",
       "kms:GetKeyPolicy",
       "kms:GetKeyRotationStatus",
+      "kms:EnableKeyRotation",
+      "kms:DisableKeyRotation",
       "kms:ListResourceTags",
       "kms:PutKeyPolicy",
       "kms:TagResource",
@@ -256,10 +258,14 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
     effect = "Allow"
     actions = [
       "kms:CreateKey",
+      "kms:CreateAlias", "kms:DeleteAlias", "kms:UpdateAlias",
       "kms:PutKeyPolicy",
+      "kms:GetKeyPolicy",
       "kms:TagResource",
       "kms:UntagResource",
       "kms:DescribeKey",
+      "kms:GetKeyRotationStatus",
+      "kms:EnableKeyRotation",
       "kms:ListResourceTags"
     ]
     resources = ["*"]
@@ -308,6 +314,18 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
       "iam:GetOpenIDConnectProvider",
       "iam:Create*",
       "iam:Update*"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "AllowEbsEncryptionDefaults"
+    effect = "Allow"
+    actions = [
+      "ec2:EnableEbsEncryptionByDefault",
+      "ec2:ModifyEbsDefaultKmsKeyId",
+      "ec2:GetEbsEncryptionByDefault",
+      "ec2:GetEbsDefaultKmsKeyId"
     ]
     resources = ["*"]
   }
@@ -463,7 +481,7 @@ data "aws_iam_policy_document" "apply_platform_core" {
     actions = [
       # IAM (for CI roles, boundaries, and later platform stacks)
       "iam:CreateRole", "iam:DeleteRole", "iam:UpdateRole", "iam:GetRole", "iam:ListRoles", "iam:ListRolePolicies",
-      "iam:AttachRolePolicy", "iam:DetachRolePolicy",
+      "iam:AttachRolePolicy", "iam:DetachRolePolicy", "iam:ListAttachedRolePolicies",
       "iam:PutRolePolicy", "iam:DeleteRolePolicy",
       "iam:CreatePolicy", "iam:DeletePolicy", "iam:ListPolicies", "iam:GetPolicy", "iam:GetPolicyVersion",
       "iam:CreatePolicyVersion", "iam:DeletePolicyVersion", "iam:SetDefaultPolicyVersion",
@@ -478,6 +496,12 @@ data "aws_iam_policy_document" "apply_platform_core" {
       "kms:PutKeyPolicy", "kms:GetKeyPolicy", "kms:ListKeys", "kms:ListAliases",
       "kms:TagResource", "kms:UntagResource",
       "kms:GetKeyRotationStatus", "kms:ListResourceTags",
+
+      # EC2
+      "ec2:EnableEbsEncryptionByDefault",
+      "ec2:ModifyEbsDefaultKmsKeyId",
+      "ec2:GetEbsEncryptionByDefault",
+      "ec2:GetEbsDefaultKmsKeyId",
 
       # S3 (audit/config buckets)
       "s3:CreateBucket", "s3:DeleteBucket",
