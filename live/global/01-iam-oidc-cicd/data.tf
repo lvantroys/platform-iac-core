@@ -256,6 +256,7 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
     effect = "Allow"
     actions = [
       "kms:CreateKey",
+      "kms:PutKeyPolicy",
       "kms:TagResource",
       "kms:UntagResource",
       "kms:DescribeKey",
