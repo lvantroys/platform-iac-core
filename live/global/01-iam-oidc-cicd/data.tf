@@ -244,9 +244,24 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
       "kms:GetKeyPolicy",
       "kms:GetKeyRotationStatus",
       "kms:ListResourceTags",
-      "kms:PutKeyPolicy"
+      "kms:PutKeyPolicy",
+      "kms:TagResource",
+      "kms:UntagResource"
     ]
     resources = [var.state_kms_key_arn]
+  }
+
+  statement {
+    sid    = "AllowCreateAndTagKmsKeys"
+    effect = "Allow"
+    actions = [
+      "kms:CreateKey",
+      "kms:TagResource",
+      "kms:UntagResource",
+      "kms:DescribeKey",
+      "kms:ListResourceTags"
+    ]
+    resources = ["*"]
   }
 
   statement {
