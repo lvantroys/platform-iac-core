@@ -1,5 +1,12 @@
 name: Terraform Drift (platform-iac-core)
 
+run-name: >-
+  ${{ case(
+    inputs.stack_path == null, 'Terraform Drift (platform-iac-core ALL stacks)',
+    inputs.stack_path == '', 'Terraform Drift (platform-iac-core ALL stacks)',
+    format('Terraform Drift (platform-iac-core {0})', inputs.stack_path)
+  ) }}
+
 on:
   schedule:
     - cron: "0 6 * * 1" # Mondays 06:00 UTC

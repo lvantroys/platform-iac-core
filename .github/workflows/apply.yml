@@ -1,5 +1,12 @@
 name: Terraform Apply (platform-iac-core)
 
+run-name: >-
+  ${{ case(
+    inputs.stack_path == null, 'Terraform Apply (platform-iac-core ALL stacks)',
+    inputs.stack_path == '', 'Terraform Apply (platform-iac-core ALL stacks)',
+    format('Terraform Apply (platform-iac-core {0})', inputs.stack_path)
+  ) }}
+
 on:
   workflow_dispatch:
     inputs:

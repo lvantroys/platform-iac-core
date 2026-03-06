@@ -1,0 +1,38 @@
+aws_region = "us-east-1"
+
+owner               = "platform-team"
+environment         = "global"
+app                 = "platform-core"
+data_classification = "restricted"
+
+trail_name             = "platform-audit"
+cloudtrail_bucket_name = "fintech1-demo1-audit-cloudtrail-us-east-1"
+s3_key_prefix          = "cloudtrail"
+
+# KMS admin(s) for the CloudTrail key (avoid invalid principals; must exist at apply time)
+kms_admin_principal_arns = [
+  "arn:aws:iam::123456789012:role/platform-security-admin"
+]
+
+# Optional: allow these principals to decrypt CloudTrail logs (for investigations)
+kms_log_decrypt_principal_arns = [
+  "arn:aws:iam::123456789012:role/platform-security-admin"
+]
+
+enable_cloudwatch_logs_delivery   = false
+cloudwatch_log_group_retention_days = 90
+cloudwatch_logs_kms_key_arn       = null
+
+# Data events are optional and can be expensive
+enable_s3_data_events      = false
+s3_data_event_arn_prefixes = [
+  # Example (enable_s3_data_events=true):
+  # "arn:aws:s3:::fintech1-demo1-tfstate-us-east-1/platform-iac-core/",
+  # "arn:aws:s3:::fintech1-demo1-tfstate-us-east-1/platform-iac-env/"
+]
+
+enable_cloudtrail_insights = false
+
+extra_tags = {
+  compliance = "regulated-finance"
+}

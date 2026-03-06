@@ -1,5 +1,13 @@
 name: Terraform Plan (platform-iac-core)
 
+#run-name: ${{ inputs.stack_path == '' && 'Terraform Plan (platform-iac-core ALL stacks)' || format('Terraform Plan (platform-iac-core '{0}'') ', inputs.stack_path) }}
+run-name: >-
+  ${{ case(
+    inputs.stack_path == null, 'Terraform Plan (platform-iac-core ALL stacks)',
+    inputs.stack_path == '', 'Terraform Plan (platform-iac-core ALL stacks)',
+    format('Terraform Plan (platform-iac-core {0})', inputs.stack_path)
+  ) }}
+
 on:
   pull_request:
     branches: ["main"]
