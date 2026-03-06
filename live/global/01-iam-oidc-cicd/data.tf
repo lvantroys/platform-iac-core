@@ -193,6 +193,7 @@ data "aws_iam_policy_document" "permissions_boundary" {
     ]
     resources = ["*"]
   }
+
 }
 
 data "aws_iam_policy_document" "permissions_boundary_core_only" {
@@ -375,7 +376,6 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
     resources = ["*"]
   }
 
-
   statement {
     sid    = "AllowEbsEncryptionDefaults"
     effect = "Allow"
@@ -484,11 +484,14 @@ data "aws_iam_policy_document" "plan_platform_core" {
       "guardduty:Get*", "guardduty:List*", "guardduty:Describe*",
       "access-analyzer:Get*", "access-analyzer:List*",
       "logs:Describe*", "logs:Get*", "logs:List*",
-      "cloudwatch:Describe*", "cloudwatch:Get*", "cloudwatch:List*"
+      "cloudwatch:Describe*", "cloudwatch:Get*", "cloudwatch:List*",
+      "ec2:GetEbsEncryptionByDefault",
+      "ec2:GetEbsDefaultKmsKeyId"
     ]
     resources = ["*"]
   }
 }
+
 
 data "aws_iam_policy_document" "plan_platform_env" {
   statement {
