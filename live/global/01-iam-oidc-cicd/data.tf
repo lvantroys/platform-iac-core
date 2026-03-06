@@ -215,6 +215,39 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
     resources = [var.state_bucket_arn]
   }
 
+
+  statement {
+    sid    = "AllowCreationUpdateBuckets"
+    effect = "Allow"
+    actions = ["s3:CreateBucket",
+      "s3:PutBucketPolicy",
+      "s3:PutBucketPublicAccessBlock",
+      "s3:PutBucketOwnershipControls",
+      "s3:PutBucketVersioning",
+      "s3:PutEncryptionConfiguration",
+      "s3:PutBucketLifecycleConfiguration",
+      "s3:PutBucketTagging"
+    ]
+    resources = [var.state_bucket_arn]
+  }
+
+  statement {
+    sid    = "AllowReadRefreshBucket"
+    effect = "Allow"
+    actions = ["s3:GetBucketAcl",
+      "s3:GetBucketPolicy",
+      "s3:GetBucketPublicAccessBlock",
+      "s3:GetBucketOwnershipControls",
+      "s3:GetBucketVersioning",
+      "s3:GetEncryptionConfiguration",
+      "s3:GetBucketLifecycleConfiguration",
+      "s3:GetBucketObjectLockConfiguration",
+      "s3:GetBucketTagging",
+      "s3:GetBucketLocation"
+    ]
+    resources = [var.state_bucket_arn]
+  }
+
   statement {
     sid       = "AllowTfstateListBucketObjects"
     effect    = "Allow"
@@ -266,17 +299,12 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
       "kms:DescribeKey",
       "kms:GetKeyRotationStatus",
       "kms:EnableKeyRotation",
-      "kms:ListResourceTags"
+      "kms:ListResourceTags",
+      "kms:ListAliases"
     ]
     resources = ["*"]
   }
 
-  statement {
-    sid       = "AllowKmsListAliases"
-    effect    = "Allow"
-    actions   = ["kms:ListAliases"]
-    resources = ["*"]
-  }
   statement {
     sid    = "DenyStateKmsDestructiveOps"
     effect = "Deny"
@@ -317,6 +345,36 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
     ]
     resources = ["*"]
   }
+
+  statement {
+    sid    = "AllowCreateAndUpdateTrails"
+    effect = "Allow"
+    actions = [
+      "cloudtrail:CreateTrail",
+      "cloudtrail:UpdateTrail",
+      "cloudtrail:StartLogging",
+      "cloudtrail:StopLogging",
+      "cloudtrail:PutEventSelectors",
+      "cloudtrail:PutInsightSelectors",
+      "cloudtrail:AddTags",
+      "cloudtrail:RemoveTags"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "AllowCreateAndUpdateTrails"
+    effect = "Allow"
+    actions = [
+      "cloudtrail:DescribeTrails",
+      "cloudtrail:GetTrailStatus",
+      "cloudtrail:GetEventSelectors",
+      "cloudtrail:ListTags",
+      "cloudtrail:GetInsightSelectors"
+    ]
+    resources = ["*"]
+  }
+
 
   statement {
     sid    = "AllowEbsEncryptionDefaults"
@@ -507,9 +565,9 @@ data "aws_iam_policy_document" "apply_platform_core" {
       "s3:CreateBucket", "s3:DeleteBucket",
       "s3:PutBucketPolicy", "s3:DeleteBucketPolicy", "s3:GetBucketPolicy",
       "s3:PutBucketPublicAccessBlock", "s3:GetBucketPublicAccessBlock",
-      "s3:PutBucketVersioning", "s3:GetBucketVersioning",
+      "s3:PutBucketVersioning", "s3:GetBucketVersioning", "s3:PutBucketTagging", "s3:GetBucketTagging",
       "s3:PutEncryptionConfiguration", "s3:GetEncryptionConfiguration",
-      "s3:PutBucketOwnershipControls", "s3:GetBucketOwnershipControls",
+      "s3:PutBucketOwnershipControls", "s3:GetBucketOwnershipControls", "s3:PutBucketLifecycleConfiguration", "s3:GetBucketLifecycleConfiguration",
       "s3:PutLifecycleConfiguration", "s3:GetLifecycleConfiguration",
       "s3:ListBucket", "s3:GetBucketLocation",
       "s3:PutObject", "s3:GetObject", "s3:DeleteObject",
