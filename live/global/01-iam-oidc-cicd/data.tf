@@ -363,7 +363,7 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
   }
 
   statement {
-    sid    = "AllowCreateAndUpdateTrails"
+    sid    = "AllowreadRefreshTrails"
     effect = "Allow"
     actions = [
       "cloudtrail:DescribeTrails",
