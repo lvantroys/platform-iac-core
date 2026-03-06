@@ -550,6 +550,7 @@ data "aws_iam_policy_document" "apply_platform_core" {
       "iam:GetOpenIDConnectProvider", "iam:ListOpenIDConnectProviders",
       "iam:TagRole", "iam:UntagRole", "iam:TagPolicy", "iam:UntagPolicy",
       "iam:PassRole",
+      "iam:ListPolicyVersions",
 
       # KMS
       "kms:CreateKey", "kms:DescribeKey", "kms:EnableKeyRotation", "kms:DisableKeyRotation",
@@ -694,6 +695,7 @@ data "aws_iam_policy_document" "apply_app" {
       "iam:AddRoleToInstanceProfile", "iam:RemoveRoleFromInstanceProfile",
       "iam:PassRole",
       "iam:TagRole", "iam:UntagRole",
+      "iam:ListPolicyVersions", "iam:CreatePolicyVersion", "iam:DeletePolicyVersion", "iam:SetDefaultPolicyVersion",
 
       # SSM parameter contracts
       "ssm:PutParameter", "ssm:DeleteParameter", "ssm:GetParameter", "ssm:GetParameters", "ssm:GetParametersByPath",
