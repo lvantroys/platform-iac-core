@@ -234,7 +234,7 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
       "s3:PutBucketLifecycleConfiguration",
       "s3:PutBucketTagging"
     ]
-    resources = [var.state_bucket_arn, "arn:${data.aws_partition.current.partition}:s3:::fintech1-demo1-audit-cloudtrail-us-east-1"]
+    resources = [var.state_bucket_arn, "arn:${data.aws_partition.current.partition}:s3:::fintech1-demo1-audit-cloudtrail-us-east-1", "arn:${data.aws_partition.current.partition}:s3:::fintech1-demo1-audit-config-us-east-1"]
   }
 
   statement {
@@ -251,7 +251,7 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
       "s3:GetBucketTagging",
       "s3:GetBucketLocation"
     ]
-    resources = [var.state_bucket_arn, "arn:${data.aws_partition.current.partition}:s3:::fintech1-demo1-audit-cloudtrail-us-east-1"]
+    resources = [var.state_bucket_arn, "arn:${data.aws_partition.current.partition}:s3:::fintech1-demo1-audit-cloudtrail-us-east-1", "arn:${data.aws_partition.current.partition}:s3:::fintech1-demo1-audit-config-us-east-1"]
   }
 
   statement {
@@ -382,6 +382,54 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
   }
 
   statement {
+    sid    = "AllowRecorderConfig"
+    effect = "Allow"
+    actions = [
+      "config:PutConfigurationRecorder",
+      "config:DeleteConfigurationRecorder",
+      "config:StartConfigurationRecorder",
+      "config:StopConfigurationRecorder",
+      "config:DescribeConfigurationRecorders",
+      "config:DescribeConfigurationRecorderStatus"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "AllowDeliveryChannelConfig"
+    effect = "Allow"
+    actions = [
+      "config:PutDeliveryChannel",
+      "config:DeleteDeliveryChannel",
+      "config:DescribeDeliveryChannels"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "AllowRetentionConfig"
+    effect = "Allow"
+    actions = [
+      "config:PutRetentionConfiguration",
+      "config:DeleteRetentionConfiguration",
+      "config:DescribeRetentionConfigurations"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "AllowManagedRulesConfig"
+    effect = "Allow"
+    actions = [
+      "config:PutConfigRule",
+      "config:DeleteConfigRule",
+      "config:DescribeConfigRules"
+    ]
+    resources = ["*"]
+  }
+
+
+  statement {
     sid    = "AllowEbsEncryptionDefaults"
     effect = "Allow"
     actions = [
@@ -490,6 +538,15 @@ data "aws_iam_policy_document" "plan_platform_core" {
       "access-analyzer:Get*", "access-analyzer:List*",
       "logs:Describe*", "logs:Get*", "logs:List*",
       "cloudwatch:Describe*", "cloudwatch:Get*", "cloudwatch:List*",
+
+      # Config read permissions (for plan-time compliance checks, drift detection, etc.)
+      "config:DescribeConfigurationRecorders", "config:DescribeConfigurationRecorderStatus",
+      "config:DescribeDeliveryChannels", "config:DescribeRetentionConfigurations", "config:DescribeConfigRules",
+
+      "config:PutDeliveryChannel", "config:DeleteDeliveryChannel",
+      "config:PutRetentionConfiguration", "config:DeleteRetentionConfiguration",
+      "config:PutConfigRule", "config:DeleteConfigRule",
+
       "ec2:GetEbsEncryptionByDefault",
       "ec2:GetEbsDefaultKmsKeyId"
     ]
@@ -553,6 +610,7 @@ data "aws_iam_policy_document" "apply_platform_core" {
       "iam:CreatePolicyVersion", "iam:DeletePolicyVersion", "iam:SetDefaultPolicyVersion",
       "iam:CreateOpenIDConnectProvider", "iam:DeleteOpenIDConnectProvider", "iam:UpdateOpenIDConnectProviderThumbprint",
       "iam:GetOpenIDConnectProvider", "iam:ListOpenIDConnectProviders",
+      "iam:CreateServiceLinkedRole", "iam:DeleteServiceLinkedRole", "iam:GetServiceLinkedRoleDeletionStatus",
       "iam:TagRole", "iam:UntagRole", "iam:TagPolicy", "iam:UntagPolicy",
       "iam:PassRole",
       "iam:ListPolicyVersions",
