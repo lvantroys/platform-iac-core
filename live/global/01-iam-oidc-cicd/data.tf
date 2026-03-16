@@ -1,5 +1,9 @@
 data "aws_caller_identity" "current" {}
 
+data "aws_partition" "current" {}
+
+
+
 # Discover the current GitHub OIDC TLS cert thumbprint dynamically (avoid hardcoding)
 data "tls_certificate" "github_oidc" {
   url = var.github_issuer_url
@@ -209,11 +213,12 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
       "s3:GetAccelerateConfiguration",
       "s3:GetBucketRequestPayment",
       "s3:GetBucketLogging",
+      "s3:GetBucketLocation",
       "s3:GetLifecycleConfiguration",
       "s3:Get*",
       "s3:Put*"
     ]
-    resources = [var.state_bucket_arn]
+    resources = [var.state_bucket_arn, "arn:${data.aws_partition.current.partition}:s3:::fintech1-demo1-audit-cloudtrail-us-east-1"]
   }
 
 
@@ -229,7 +234,7 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
       "s3:PutBucketLifecycleConfiguration",
       "s3:PutBucketTagging"
     ]
-    resources = [var.state_bucket_arn]
+    resources = [var.state_bucket_arn, "arn:${data.aws_partition.current.partition}:s3:::fintech1-demo1-audit-cloudtrail-us-east-1"]
   }
 
   statement {
@@ -246,7 +251,7 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
       "s3:GetBucketTagging",
       "s3:GetBucketLocation"
     ]
-    resources = [var.state_bucket_arn]
+    resources = [var.state_bucket_arn, "arn:${data.aws_partition.current.partition}:s3:::fintech1-demo1-audit-cloudtrail-us-east-1"]
   }
 
   statement {
@@ -586,6 +591,9 @@ data "aws_iam_policy_document" "apply_platform_core" {
       "cloudtrail:StartLogging", "cloudtrail:StopLogging",
       "cloudtrail:PutEventSelectors", "cloudtrail:GetEventSelectors",
       "cloudtrail:PutInsightSelectors", "cloudtrail:GetInsightSelectors",
+      "cloudtrail:DescribeTrails", "cloudtrail:GetTrailStatus",
+      "cloudtrail:ListTags", "cloudtrail:GetTags",
+
       "config:PutConfigurationRecorder", "config:DeleteConfigurationRecorder",
       "config:PutDeliveryChannel", "config:DeleteDeliveryChannel",
       "config:StartConfigurationRecorder", "config:StopConfigurationRecorder",
