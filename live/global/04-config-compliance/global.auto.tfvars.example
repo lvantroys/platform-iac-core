@@ -1,0 +1,39 @@
+aws_region = "us-east-1"
+
+owner               = "platform-team"
+environment         = "global"
+app                 = "platform-core"
+data_classification = "restricted"
+
+config_bucket_name   = "fintech1-demo1-audit-config-us-east-1"
+config_bucket_prefix = "config"
+
+# Optional (immutability)
+enable_object_lock = false
+object_lock_mode   = "GOVERNANCE"
+object_lock_days   = 90
+
+# Key admins (must exist at apply time)
+kms_admin_principal_arns = [
+  "arn:aws:iam::123456789012:role/platform-security-admin"
+]
+
+# Optional decrypt principals (investigations)
+kms_decrypt_principal_arns = [
+  "arn:aws:iam::123456789012:role/platform-security-admin"
+]
+
+recorder_name                 = "default"
+delivery_channel_name         = "default"
+snapshot_delivery_frequency   = "TwentyFour_Hours"
+config_retention_days         = 365
+record_all_supported          = true
+include_global_resource_types = true
+
+enable_managed_rules = true
+# Optional override: if omitted, a safe default baseline is used
+# managed_rules = { ... }
+
+extra_tags = {
+  compliance = "regulated-finance"
+}
