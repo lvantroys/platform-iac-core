@@ -276,6 +276,7 @@ resource "aws_config_delivery_channel" "this" {
   }
 
   depends_on = [
+    aws_config_configuration_recorder.this,
     aws_s3_bucket_policy.config,
     aws_s3_bucket_server_side_encryption_configuration.config
   ]
