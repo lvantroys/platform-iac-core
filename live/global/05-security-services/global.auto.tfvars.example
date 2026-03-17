@@ -1,0 +1,35 @@
+aws_region = "us-east-1"
+
+owner               = "platform-team"
+environment         = "global"
+app                 = "platform-core"
+data_classification = "restricted"
+
+# GuardDuty baseline
+enable_guardduty                      = true
+guardduty_finding_publishing_frequency = "SIX_HOURS"
+configure_guardduty_datasources        = true
+guardduty_enable_s3_protection         = true
+guardduty_enable_kubernetes_audit_logs  = false
+guardduty_enable_malware_protection_ebs = true
+
+# Security Hub baseline (recommend: disable defaults and explicitly choose standards)
+enable_securityhub                   = true
+securityhub_enable_default_standards = false
+securityhub_control_finding_generator = "SECURITY_CONTROL"
+securityhub_auto_enable_controls      = true
+securityhub_standards = [
+  "aws-foundational-security-best-practices/v/1.0.0",
+  "cis-aws-foundations-benchmark/v/1.4.0",
+  "aws-resource-tagging-standard/v/1.0.0"
+]
+
+# IAM Access Analyzer baseline
+enable_access_analyzer = true
+create_accessanalyzer_service_linked_role = true
+access_analyzer_name = "platform-access-analyzer"
+access_analyzer_type = "ACCOUNT"
+
+extra_tags = {
+  compliance = "regulated-finance"
+}
