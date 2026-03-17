@@ -218,7 +218,7 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
       "s3:Get*",
       "s3:Put*"
     ]
-    resources = [var.state_bucket_arn, "arn:${data.aws_partition.current.partition}:s3:::fintech1-demo1-audit-cloudtrail-us-east-1"]
+    resources = [var.state_bucket_arn, "arn:${data.aws_partition.current.partition}:s3:::fintech1-demo1-audit-cloudtrail-us-east-1", "arn:${data.aws_partition.current.partition}:s3:::fintech1-demo1-audit-config-us-east-1"]
   }
 
 
@@ -249,6 +249,7 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
       "s3:GetBucketLifecycleConfiguration",
       "s3:GetBucketObjectLockConfiguration",
       "s3:GetBucketTagging",
+      "s3:ListBucket",
       "s3:GetBucketLocation"
     ]
     resources = [var.state_bucket_arn, "arn:${data.aws_partition.current.partition}:s3:::fintech1-demo1-audit-cloudtrail-us-east-1", "arn:${data.aws_partition.current.partition}:s3:::fintech1-demo1-audit-config-us-east-1"]
@@ -347,10 +348,21 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
       "iam:Get*",
       "iam:GetOpenIDConnectProvider",
       "iam:Create*",
-      "iam:Update*"
+      "iam:Update*",
+      "iam:DeleteServiceLinkedRole"
     ]
     resources = ["*"]
   }
+
+  statement {
+    sid    = "AllowTagActionsOnRolesAndPolicies"
+    effect = "Allow"
+    actions = [
+      "iam:TagRole", "iam:UntagRole", "iam:TagPolicy", "iam:UntagPolicy", "iam:PassRole"
+    ]
+    resources = ["*"]
+  }
+
 
   statement {
     sid    = "AllowCreateAndUpdateTrails"
@@ -428,6 +440,16 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
     resources = ["*"]
   }
 
+  statement {
+    sid    = "AllowTagActionsOnConfigResources"
+    effect = "Allow"
+    actions = [
+      "config:TagResource",
+      "config:UntagResource",
+      "config:ListTagsForResource"
+    ]
+    resources = ["*"]
+  }
 
   statement {
     sid    = "AllowEbsEncryptionDefaults"
@@ -652,10 +674,19 @@ data "aws_iam_policy_document" "apply_platform_core" {
       "cloudtrail:DescribeTrails", "cloudtrail:GetTrailStatus",
       "cloudtrail:ListTags", "cloudtrail:GetTags",
 
-      "config:PutConfigurationRecorder", "config:DeleteConfigurationRecorder",
+      # Config read permissions (for plan-time compliance checks, drift detection, etc.)
+      "config:DescribeConfigurationRecorders", "config:DescribeConfigurationRecorderStatus",
+      "config:DescribeDeliveryChannels", "config:DescribeRetentionConfigurations", "config:DescribeConfigRules",
+
       "config:PutDeliveryChannel", "config:DeleteDeliveryChannel",
-      "config:StartConfigurationRecorder", "config:StopConfigurationRecorder",
+      "config:PutRetentionConfiguration", "config:DeleteRetentionConfiguration",
       "config:PutConfigRule", "config:DeleteConfigRule",
+
+      "config:PutConfigurationRecorder", "config:DeleteConfigurationRecorder",
+      "config:StartConfigurationRecorder", "config:StopConfigurationRecorder",
+
+      "config:TagResource", "config:UntagResource", "config:ListTagsForResource",
+
       "securityhub:EnableSecurityHub", "securityhub:DisableSecurityHub",
       "guardduty:CreateDetector", "guardduty:DeleteDetector",
       "access-analyzer:CreateAnalyzer", "access-analyzer:DeleteAnalyzer",
