@@ -113,8 +113,8 @@ data "aws_iam_policy_document" "permissions_boundary" {
   statement {
     sid       = "AllowTfstateListBucketObjects"
     effect    = "Allow"
-    actions   = ["s3:ListBucket", "s3:GetObject", "s3:GetObjectVersion", "s3:PutObject", "s3:DeleteObject"]
-    resources = ["${var.state_bucket_arn}/*"]
+    actions   = ["s3:ListBucket", "s3:GetObject", "s3:GetObjectVersion", "s3:PutObject", "s3:DeleteObject", "s3:HeadObject"]
+    resources = [var.state_bucket_arn, "${var.state_bucket_arn}/*"]
   }
 
   statement {
@@ -194,6 +194,57 @@ data "aws_iam_policy_document" "permissions_boundary" {
       "iam:GetOpenIDConnectProvider",
       "iam:Create*",
       "iam:Update*"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "AllowDescribeEc2"
+    effect = "Allow"
+    actions = [
+      "ec2:DescribeAvailabilityZones",
+      "ec2:DescribeVpcs",
+      "ec2:DescribeVpcAttribute",
+      "ec2:DescribeSubnets",
+      "ec2:DescribeInternetGateways",
+      "ec2:DescribeNatGateways",
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:DescribeAddresses",
+      "ec2:DescribeRouteTables",
+      "ec2:DescribeRoutes",
+      "ec2:DescribeTags",
+      "ec2:DescribeAddressesAttribute"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "AllowCreateUpdateDeleteEc2"
+    effect = "Allow"
+    actions = [
+      "ec2:CreateVpc",
+      "ec2:ModifyVpcAttribute",
+      "ec2:DeleteVpc",
+      "ec2:CreateSubnet",
+      "ec2:ModifySubnetAttribute",
+      "ec2:DeleteSubnet",
+      "ec2:CreateInternetGateway",
+      "ec2:AttachInternetGateway",
+      "ec2:DetachInternetGateway",
+      "ec2:DeleteInternetGateway",
+      "ec2:AllocateAddress",
+      "ec2:ReleaseAddress",
+      "ec2:CreateNatGateway",
+      "ec2:DeleteNatGateway",
+      "ec2:CreateRouteTable",
+      "ec2:DeleteRouteTable",
+      "ec2:CreateRoute",
+      "ec2:DeleteRoute",
+      "ec2:ReplaceRoute",
+      "ec2:AssociateRouteTable",
+      "ec2:DisassociateRouteTable",
+      "ec2:CreateTags",
+      "ec2:DeleteTags"
     ]
     resources = ["*"]
   }
@@ -462,6 +513,46 @@ data "aws_iam_policy_document" "permissions_boundary_core_only" {
     ]
     resources = ["*"]
   }
+
+  statement {
+    sid    = "AllowSecurityHubUpdates"
+    effect = "Allow"
+    actions = [
+      "securityhub:DescribeHub",
+      "securityhub:EnableSecurityHub",
+      "securityhub:DisableSecurityHub",
+      "securityhub:UpdateSecurityHubConfiguration",
+      "securityhub:BatchEnableStandards",
+      "securityhub:BatchDisableStandards",
+      "securityhub:GetEnabledStandards"
+    ]
+    resources = ["*"]
+  }
+
+
+  statement {
+    sid    = "AllowGuardDutyCreateAndTag"
+    effect = "Allow"
+    actions = [
+      "guardduty:CreateDetector", "guardduty:DeleteDetector", "guardduty:GetDetector",
+      "guardduty:TagResource", "guardduty:UntagResource", "guardduty:ListDetectors"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "AllowAccessAnalyzerCreateAndTag"
+    effect = "Allow"
+    actions = [
+      "access-analyzer:CreateAnalyzer", "access-analyzer:DeleteAnalyzer",
+      "access-analyzer:TagResource", "access-analyzer:UntagResource",
+      "access-analyzer:GetAnalyzer", "access-analyzer:GetAnalyzerSummary"
+    ]
+    resources = ["*"]
+  }
+
+
+
 }
 
 
@@ -582,13 +673,25 @@ data "aws_iam_policy_document" "plan_platform_env" {
     effect = "Allow"
     actions = [
       "ec2:Describe*",
+      "ec2:DescribeAvailabilityZones",
+      "ec2:DescribeVpcs",
+      "ec2:DescribeSubnets",
+      "ec2:DescribeInternetGateways",
+      "ec2:DescribeNatGateways",
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:DescribeAddresses",
+      "ec2:DescribeRouteTables",
+      "ec2:DescribeRoutes",
+      "ec2:DescribeTags",
+
+
       "elasticloadbalancing:Describe*",
       "acm:Describe*", "acm:List*",
       "wafv2:Get*", "wafv2:List*",
       "route53:Get*", "route53:List*",
       "logs:Describe*", "logs:Get*", "logs:List*",
       "cloudwatch:Describe*", "cloudwatch:Get*", "cloudwatch:List*",
-      "s3:Get*", "s3:List*",
+      "s3:Get*", "s3:List*", "s3:HeadObject",
       "iam:Get*", "iam:List*"
     ]
     resources = ["*"]
@@ -687,9 +790,18 @@ data "aws_iam_policy_document" "apply_platform_core" {
 
       "config:TagResource", "config:UntagResource", "config:ListTagsForResource",
 
+      "securityhub:DescribeHub", "securityhub:BatchEnableStandards", "securityhub:BatchDisableStandards",
       "securityhub:EnableSecurityHub", "securityhub:DisableSecurityHub",
+      "securityhub:UpdateSecurityHubConfiguration",
+      "securityhub:GetEnabledStandards",
+
       "guardduty:CreateDetector", "guardduty:DeleteDetector",
+      "guardduty:TagResource", "guardduty:UntagResource",
+      "guardduty:GetDetector", "guardduty:ListDetectors",
+
       "access-analyzer:CreateAnalyzer", "access-analyzer:DeleteAnalyzer",
+      "access-analyzer:TagResource", "access-analyzer:UntagResource",
+      "access-analyzer:GetAnalyzer", "access-analyzer:GetAnalyzerSummary",
 
       # Logs/CloudWatch
       "logs:CreateLogGroup", "logs:DeleteLogGroup", "logs:PutRetentionPolicy", "logs:AssociateKmsKey", "logs:DisassociateKmsKey",
@@ -704,15 +816,46 @@ data "aws_iam_policy_document" "apply_platform_env" {
     effect = "Allow"
     actions = [
       # VPC / networking
-      "ec2:CreateVpc", "ec2:DeleteVpc", "ec2:ModifyVpcAttribute",
-      "ec2:CreateSubnet", "ec2:DeleteSubnet", "ec2:ModifySubnetAttribute",
-      "ec2:CreateInternetGateway", "ec2:DeleteInternetGateway", "ec2:AttachInternetGateway", "ec2:DetachInternetGateway",
-      "ec2:CreateRouteTable", "ec2:DeleteRouteTable", "ec2:CreateRoute", "ec2:DeleteRoute", "ec2:AssociateRouteTable", "ec2:DisassociateRouteTable",
-      "ec2:CreateSecurityGroup", "ec2:DeleteSecurityGroup", "ec2:AuthorizeSecurityGroupIngress", "ec2:RevokeSecurityGroupIngress",
-      "ec2:AuthorizeSecurityGroupEgress", "ec2:RevokeSecurityGroupEgress",
-      "ec2:CreateVpcEndpoint", "ec2:DeleteVpcEndpoints", "ec2:ModifyVpcEndpoint",
-      "ec2:CreateFlowLogs", "ec2:DeleteFlowLogs",
-      "ec2:CreateTags", "ec2:DeleteTags",
+
+      "ec2:CreateVpc",
+      "ec2:ModifyVpcAttribute",
+      "ec2:DeleteVpc",
+      "ec2:CreateSubnet",
+      "ec2:ModifySubnetAttribute",
+      "ec2:DeleteSubnet",
+      "ec2:CreateInternetGateway",
+      "ec2:AttachInternetGateway",
+      "ec2:DetachInternetGateway",
+      "ec2:DeleteInternetGateway",
+      "ec2:AllocateAddress",
+      "ec2:ReleaseAddress",
+      "ec2:CreateNatGateway",
+      "ec2:DeleteNatGateway",
+      "ec2:CreateRouteTable",
+      "ec2:DeleteRouteTable",
+      "ec2:CreateRoute",
+      "ec2:DeleteRoute",
+      "ec2:ReplaceRoute",
+      "ec2:AssociateRouteTable",
+      "ec2:DisassociateRouteTable",
+      "ec2:CreateTags",
+      "ec2:DeleteTags",
+
+      "ec2:DescribeAvailabilityZones",
+      "ec2:DescribeVpcs",
+      "ec2:DescribeVpcAttribute",
+      "ec2:DescribeSubnets",
+      "ec2:DescribeInternetGateways",
+      "ec2:DescribeNatGateways",
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:DescribeAddresses",
+      "ec2:DescribeAddressesAttribute",
+      "ec2:DescribeRouteTables",
+      "ec2:DescribeRoutes",
+      "ec2:DescribeTags",
+
+
+
 
       # ALB
       "elasticloadbalancing:CreateLoadBalancer", "elasticloadbalancing:DeleteLoadBalancer",
@@ -744,6 +887,12 @@ data "aws_iam_policy_document" "apply_platform_env" {
       "s3:PutLifecycleConfiguration", "s3:GetLifecycleConfiguration",
       "s3:PutBucketOwnershipControls", "s3:GetBucketOwnershipControls",
       "s3:ListBucket", "s3:GetBucketLocation",
+      "s3:GetObject", "s3:PutObject", "s3:HeadObject",
+
+      "kms:Decrypt",
+      "kms:Decrypt",
+      "kms:GenerateDataKey",
+      "kms:DescribeKey",
 
       # Logs / CloudWatch
       "logs:CreateLogGroup", "logs:DeleteLogGroup", "logs:PutRetentionPolicy", "logs:AssociateKmsKey", "logs:DisassociateKmsKey",
