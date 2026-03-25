@@ -138,6 +138,7 @@ data "aws_iam_policy_document" "permissions_boundary" {
     sid    = "AllowTfstateKmsUsage"
     effect = "Allow"
     actions = [
+      "kms:CreateGrant",
       "kms:Decrypt",
       "kms:Encrypt",
       "kms:ReEncrypt*",
@@ -193,9 +194,26 @@ data "aws_iam_policy_document" "permissions_boundary" {
       "iam:Get*",
       "iam:GetOpenIDConnectProvider",
       "iam:Create*",
-      "iam:Update*"
+      "iam:Update*",
+      "iam:PassRole"
     ]
     resources = ["*"]
+  }
+
+
+  statement {
+    sid    = "AllowCreateUpdateRolesActions"
+    effect = "Allow"
+    actions = [
+      "iam:CreateRole",
+      "iam:DeleteRole",
+      "iam:PutRolePolicy",
+      "iam:DeleteRolePolicy",
+      "iam:UpdateAssumeRolePolicy",
+      "iam:TagRole",
+      "iam:UntagRole"
+    ]
+    resources = ["arn:aws:iam::*:role/*-vpc-flow-logs"]
   }
 
   statement {
@@ -213,7 +231,16 @@ data "aws_iam_policy_document" "permissions_boundary" {
       "ec2:DescribeRouteTables",
       "ec2:DescribeRoutes",
       "ec2:DescribeTags",
-      "ec2:DescribeAddressesAttribute"
+      "ec2:DescribeAddressesAttribute",
+
+      "ec2:DescribeSecurityGroups",
+      "ec2:DescribeSecurityGroupRules",
+      "ec2:DescribeVpcEndpoints",
+      "ec2:DescribeVpcEndpointServices",
+
+      "ec2:DescribePrefixLists",
+      "ec2:DescribeFlowLogs"
+
     ]
     resources = ["*"]
   }
@@ -244,10 +271,92 @@ data "aws_iam_policy_document" "permissions_boundary" {
       "ec2:AssociateRouteTable",
       "ec2:DisassociateRouteTable",
       "ec2:CreateTags",
+      "ec2:DeleteTags",
+      "ec2:DeleteVpcEndpoints"
+    ]
+    resources = ["*"]
+  }
+
+
+  statement {
+    sid    = "AllowCreateDeleteEc2FlowLogs"
+    effect = "Allow"
+    actions = [
+      "ec2:CreateFlowLogs",
+      "ec2:DeleteFlowLogs",
+    ]
+    resources = ["*"]
+  }
+
+
+  statement {
+    sid    = "AllowCreateUpdateDeleteEc2SecurityGroups"
+    effect = "Allow"
+    actions = [
+      "ec2:CreateSecurityGroup",
+      "ec2:DeleteSecurityGroup",
+      "ec2:AuthorizeSecurityGroupIngress",
+      "ec2:RevokeSecurityGroupIngress",
+      "ec2:AuthorizeSecurityGroupEgress",
+      "ec2:RevokeSecurityGroupEgress",
+      "ec2:CreateTags",
       "ec2:DeleteTags"
     ]
     resources = ["*"]
   }
+
+  statement {
+    sid    = "AllowCreateUpdateDeleteEc2VpcEndpoint"
+    effect = "Allow"
+    actions = [
+      "ec2:CreateVpcEndpoint",
+      "ec2:DeleteVpcEndpoint",
+      "ec2:ModifyVpcEndpoint",
+      "ec2:CreateVpcEndpointServiceConfiguration",
+      "ec2:DescribeVpcEndpoints",
+      "ec2:DescribeVpcEndpointServices",
+      "ec2:ModifyVpcEndpointServiceConfiguration"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "AllowCreateUpdateDeleteEc2RouteTables"
+    effect = "Allow"
+    actions = [
+      "ec2:AssociateRouteTable",
+      "ec2:DisassociateRouteTable",
+      "ec2:DescribeRouteTables"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "AllowDescribeLogsActions"
+    effect = "Allow"
+    actions = [
+      "logs:DescribeLogGroups",
+      "logs:DescribeRetentionPolicies"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "AllowCreateDeleteLogsActions"
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:PutRetentionPolicy",
+      "logs:DeleteLogGroup",
+      "logs:TagLogGroup",
+      "logs:UntagLogGroup",
+      "logs:TagResource",
+      "logs:ListTagsForResource"
+    ]
+    resources = ["arn:aws:logs:*:*:log-group:/aws/vpc-flow-logs/*"]
+
+  }
+
 
 }
 
@@ -684,12 +793,27 @@ data "aws_iam_policy_document" "plan_platform_env" {
       "ec2:DescribeRoutes",
       "ec2:DescribeTags",
 
+      "ec2:DescribeSecurityGroups",
+      "ec2:DescribeSecurityGroupRules",
+      "ec2:DescribeVpcEndpoints",
+      "ec2:DescribeVpcEndpointServices",
+
+      "ec2:AssociateRouteTable",
+      "ec2:DisassociateRouteTable",
+      "ec2:DescribeRouteTables",
+
+      "ec2:DescribePrefixLists",
+      "ec2:DescribeFlowLogs",
 
       "elasticloadbalancing:Describe*",
       "acm:Describe*", "acm:List*",
       "wafv2:Get*", "wafv2:List*",
       "route53:Get*", "route53:List*",
       "logs:Describe*", "logs:Get*", "logs:List*",
+
+      "logs:DescribeLogGroups", "logs:DescribeRetentionPolicies",
+      "logs:ListTagsForResource",
+
       "cloudwatch:Describe*", "cloudwatch:Get*", "cloudwatch:List*",
       "s3:Get*", "s3:List*", "s3:HeadObject",
       "iam:Get*", "iam:List*"
@@ -854,7 +978,35 @@ data "aws_iam_policy_document" "apply_platform_env" {
       "ec2:DescribeRoutes",
       "ec2:DescribeTags",
 
+      "ec2:DescribeSecurityGroups",
+      "ec2:DescribeSecurityGroupRules",
+      "ec2:DescribeVpcEndpoints",
+      "ec2:DescribeVpcEndpointServices",
 
+      "ec2:CreateSecurityGroup",
+      "ec2:DeleteSecurityGroup",
+      "ec2:AuthorizeSecurityGroupIngress",
+      "ec2:RevokeSecurityGroupIngress",
+      "ec2:AuthorizeSecurityGroupEgress",
+      "ec2:RevokeSecurityGroupEgress",
+
+
+      "ec2:CreateVpcEndpoint",
+      "ec2:DeleteVpcEndpoint",
+      "ec2:ModifyVpcEndpoint",
+      "ec2:CreateVpcEndpointServiceConfiguration",
+      "ec2:ModifyVpcEndpointServiceConfiguration",
+
+      "ec2:AssociateRouteTable",
+      "ec2:DisassociateRouteTable",
+      "ec2:DescribeRouteTables",
+
+      "ec2:DescribePrefixLists",
+
+      "ec2:DeleteVpcEndpoints",
+
+      "ec2:CreateFlowLogs",
+      "ec2:DescribeFlowLogs",
 
 
       # ALB
@@ -893,13 +1045,25 @@ data "aws_iam_policy_document" "apply_platform_env" {
       "kms:Decrypt",
       "kms:GenerateDataKey",
       "kms:DescribeKey",
+      "kms:CreateGrant",
 
       # Logs / CloudWatch
       "logs:CreateLogGroup", "logs:DeleteLogGroup", "logs:PutRetentionPolicy", "logs:AssociateKmsKey", "logs:DisassociateKmsKey",
       "cloudwatch:PutMetricAlarm", "cloudwatch:DeleteAlarms", "cloudwatch:PutDashboard", "cloudwatch:DeleteDashboards",
 
+      "logs:DescribeLogGroups", "logs:DescribeRetentionPolicies", "logs:TagResource", "logs:UntagResource", "logs:ListTagsForResource",
+
       # IAM read (for SG references, endpoint policies, etc.)
-      "iam:Get*", "iam:List*"
+      "iam:Get*", "iam:List*",
+      "iam:CreateRole",
+      "iam:DeleteRole",
+      "iam:PutRolePolicy",
+      "iam:DeleteRolePolicy",
+      "iam:UpdateAssumeRolePolicy",
+      "iam:TagRole",
+      "iam:UntagRole",
+      "iam:PassRole"
+
     ]
     resources = ["*"]
   }
